@@ -8,8 +8,8 @@ handlers:
 
 - url: /.*
   script: auto
-# We define env_variables here but the actual Gemini API key should NOT 
-# be checked into Git. It should be added via GCP App Engine dashboard 
-# variables later, or injected via the workflow.
-# env_variables:
-#   GEMINI_API_KEY: "your-api-key"
+
+env_variables:
+  # The actual Gemini API key should be added via the GCP App Engine 
+  # dashboard environment variables for security.
+  GEMINI_API_KEY: "PLACEHOLDER"
