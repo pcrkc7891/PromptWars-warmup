@@ -1,5 +1,5 @@
 runtime: python311
-entrypoint: gunicorn -b :$PORT app:app
+entrypoint: gunicorn -b :$PORT app:app --workers=4 --threads=2
 
 # We define env_variables here but the actual Gemini API key should NOT 
 # be checked into Git. It should be added via GCP App Engine dashboard 
