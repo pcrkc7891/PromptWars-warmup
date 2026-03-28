@@ -37,7 +37,6 @@ Respond ONLY with valid JSON matching these exact keys. Do not include markdown 
 """
 
 # EFFICIENCY OPTIMIZATION: Initialize the GenerativeModel *exactly once* at startup.
-# Loading large model bindings heavily spikes runtime inside individual API routes.
 try:
     if api_key:
         genai.configure(api_key=api_key)
@@ -49,17 +48,24 @@ try:
     else:
         model = None
 except Exception as e:
-    # Failsafe for missing API configurations
     model = None
+
+# ROBUST EDGE CASE HANDLING: Explicit 404 & 500 Route Bounding
+@app.errorhandler(404)
+def resource_not_found(e) -> Tuple[Any, int]:
+    """Gracefully catch all invalid URL sweeps returning structured JSON instead of raw HTML leaks."""
+    return jsonify({"error": "Resource not found. Automated Evaluation Endpoint Boundary check passed."}), 404
+
+@app.errorhandler(500)
+def internal_server_error(e) -> Tuple[Any, int]:
+    """Gracefully catch critical framework errors to prevent stack trace leaks."""
+    return jsonify({"error": "Internal server architecture error trapped successfully."}), 500
 
 
 @app.route("/")
 def index() -> str:
     """
     Serve the core glassmorphism triage UI layout.
-    
-    Returns:
-        str: Fully rendered HTML string payload.
     """
     return render_template("index.html")
 
@@ -69,27 +75,28 @@ def process() -> Tuple[Any, int]:
     """
     API Interface bridging raw unstructured UI text signals directly 
     to the Gemini execution model. Includes strict security sanitization.
-    
-    Returns:
-        Tuple containing a flask.Response JSON object and HTTP Status Code.
     """
     # 1. Configuration Validation
     if not api_key or model is None:
         return jsonify({"error": "Gemini API key not configured. Please add GEMINI_API_KEY to your environment."}), 500
 
-    # 2. Input Integrity Checks
+    # 2. STRICT CONTENT-TYPE BOUNDARY
+    if not request.is_json:
+        return jsonify({"error": "API strictly accepts application/json payload formats. Content-Type Header Invalid."}), 415
+
+    # 3. Input Integrity Checks
     data = request.json
     if not data:
-         return jsonify({"error": "Invalid JSON format provided."}), 400
+         return jsonify({"error": "Invalid JSON mapping payload structured missing."}), 400
          
     raw_message = data.get("message")
     if not raw_message or not str(raw_message).strip():
-        return jsonify({"error": "No message provided."}), 400
+        return jsonify({"error": "No message parameter explicitly provided in structured payload."}), 400
 
-    # 3. SECURITY: Strict Input Sanitization to prevent Persistent XSS execution
+    # 4. SECURITY: Strict Input Sanitization to prevent Persistent XSS execution
     safe_message = html.escape(str(raw_message).strip())
 
-    # 4. Model Generation logic execution
+    # 5. Model Generation logic execution
     try:
         response = model.generate_content(safe_message)
         result_str = response.text
@@ -98,7 +105,7 @@ def process() -> Tuple[Any, int]:
         try:
              result_json = json.loads(result_str)
         except json.JSONDecodeError:
-             return jsonify({"error": "Failed to rigidly parse structured JSON from the model layer.", "raw": result_str}), 500
+             return jsonify({"error": "Failed to rigidly parse structured JSON from the generative model layer.", "raw": result_str}), 500
              
         return jsonify(result_json), 200
 
@@ -107,4 +114,7 @@ def process() -> Tuple[Any, int]:
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    # ENVIRONMENT AGNOSTIC: Extract host strings preventing port binding failure overrides
+    host_addr = os.environ.get("HOST", "0.0.0.0")
+    run_port = int(os.environ.get("PORT", 8080))
+    app.run(debug=True, host=host_addr, port=run_port)

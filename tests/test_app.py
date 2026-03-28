@@ -16,6 +16,19 @@ def test_index_route(client):
     assert response.status_code == 200
     assert b"ResQ-Route" in response.data
 
+def test_404_handling(client):
+    """Test the robust 404 URL shielding."""
+    response = client.get("/random-invalid-url-sweep")
+    assert response.status_code == 404
+    assert response.is_json
+    assert "Resource not found" in response.get_json()["error"]
+
+def test_invalid_content_type(client):
+    """Test that non-JSON payloads are aggressively rejected."""
+    response = client.post("/process", data="raw string here")
+    assert response.status_code == 415
+    assert response.is_json
+
 def test_process_no_message(client):
     """Test the API rejection of missing data."""
     with patch("app.api_key", "dummy_key"):
@@ -23,7 +36,7 @@ def test_process_no_message(client):
             response = client.post("/process", json={})
             assert response.status_code == 400
             data = response.get_json()
-            assert "Invalid JSON" in data["error"] or "No message" in data["error"]
+            assert "Invalid JSON" in data["error"] or "No message parameter explicitly provided" in data["error"]
 
 def test_process_missing_api_key(client):
     """Test that hitting the route without an API key gracefully blocks execution (Security Coverage)."""
