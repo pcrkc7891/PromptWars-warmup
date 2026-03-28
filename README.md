@@ -6,7 +6,7 @@
 * **App Name:** **ResQ-Route**
 
 ## 💡 The Problem & Logic
-During massive natural disasters (like hurricanes or floods), 911 dispatch centers are overwhelmed. Chaos ensues as victims post frantic, unstructured cries for help across various channels (texts, social media, emergency lines). These inputs are incredibly messy—containing slang, typos, panic, and fragmented location data.
+During massive natural disasters (like hurricanes or floods), 100/108/112 dispatch centers are overwhelmed. Chaos ensues as victims post frantic, unstructured cries for help across various channels (texts, social media, emergency lines). These inputs are incredibly messy—containing slang, typos, panic, and fragmented location data.
 
 **The Approach:**
 ResQ-Route acts as the ultimate bridge. It takes raw, unstructured "messy" human intent signals and immediately structuralizes them into clean, verified JSON payloads. It determines the `Severity` of the incident, the core `Intent` (Is it a medical emergency or just a request for info?), extracts the `Location`, and provides an `Immediate Life-Saving Action` for emergency dispatchers.
