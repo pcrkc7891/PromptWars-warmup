@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,13 +32,14 @@
                     id="raw-signal" 
                     name="raw-signal"
                     placeholder="E.g., Water is rising fast up to the 2nd floor window! Can't leave the house, grandma is trapped. We are at 502 Elm Street. Please send help..."
+                    aria-label="Raw Incoming Signal"
                     aria-required="true"
                 ></textarea>
                 
                 <div class="controls">
                     <button id="process-btn" aria-label="Analyze the unformatted signal through Gemini">Analyze Signal</button>
                     <!-- Loading state for visually impaired users -->
-                    <div class="loading-spinner hidden" id="spinner" role="status" aria-label="Processing signal"></div>
+                    <div class="loading-spinner hidden" id="spinner" role="progressbar" aria-label="Processing signal"></div>
                 </div>
                 <div id="error-msg" class="error hidden" role="alert"></div>
             </section>
