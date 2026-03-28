@@ -1,6 +1,6 @@
 # ResQ-Route: Disaster Signal Aggregator
 
-## 🏆 PromptWars Hackathon - Warm-Up Phase Submission
+## 🏆 PromptWars Hackathon - main Phase Submission
 
 * **Challenge Vertical:** Emergency Response / Disaster Relief
 * **App Name:** **ResQ-Route**
