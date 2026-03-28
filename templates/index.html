@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQ-Route | Disaster Signal Aggregator</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-mesh"></div>
+    <div class="container">
+        <header>
+            <h1><span class="highlight">ResQ-Route</span> Triage</h1>
+            <p>Gemini-powered Unstructured Emergency Signal Structuralizer.</p>
+        </header>
+        
+        <main class="dashboard">
+            <section class="input-panel glass">
+                <h2>Raw Incoming Signal</h2>
+                <textarea id="raw-signal" placeholder="E.g., Water is rising fast up to the 2nd floor window! Can't leave the house, grandma is trapped. We are at 502 Elm Street. Please send help..."></textarea>
+                <div class="controls">
+                    <button id="process-btn">Analyze Signal</button>
+                    <div class="loading-spinner hidden" id="spinner"></div>
+                </div>
+                <div id="error-msg" class="error hidden"></div>
+            </section>
+
+            <section class="output-panel glass">
+                <h2>Structured Action Plan</h2>
+                <div class="placeholder" id="output-placeholder">
+                    Awaiting signal analysis...
+                </div>
+                
+                <div class="results hidden" id="results">
+                    <div class="result-header">
+                        <span id="priority-badge" class="badge">Priority 1</span>
+                        <h3 id="res-severity">Critical</h3>
+                    </div>
+                    
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span class="label">Intent</span>
+                            <span class="value" id="res-intent">-</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">Location</span>
+                            <span class="value" id="res-location">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-box">
+                        <span class="label">Immediate Life-Saving Action:</span>
+                        <p id="res-action">-</p>
+                    </div>
+                    
+                    <div class="json-preview">
+                        <span class="label">Verified JSON Payload:</span>
+                        <pre><code id="json-code"></code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
