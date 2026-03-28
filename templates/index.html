@@ -16,12 +16,12 @@
     <div class="background-mesh" aria-hidden="true"></div>
     <div class="container">
         <!-- Semantic Document Structure -->
-        <header>
+        <header role="banner">
             <h1><span class="highlight">ResQ-Route</span> Triage</h1>
             <p>Gemini-powered Unstructured Emergency Signal Structuralizer.</p>
         </header>
         
-        <main class="dashboard">
+        <main class="dashboard" role="main">
             <!-- Accessibility structural landmarks using sections -->
             <section class="input-panel glass" aria-labelledby="input-heading">
                 <h2 id="input-heading">Raw Incoming Signal</h2>
@@ -37,7 +37,7 @@
                 ></textarea>
                 
                 <div class="controls">
-                    <button id="process-btn" aria-label="Analyze the unformatted signal through Gemini">Analyze Signal</button>
+                    <button id="process-btn" type="button" aria-label="Analyze the unformatted signal through Gemini">Analyze Signal</button>
                     <!-- Loading state for visually impaired users -->
                     <div class="loading-spinner hidden" id="spinner" role="progressbar" aria-label="Processing signal"></div>
                 </div>

@@ -1,49 +1,54 @@
-# ResQ-Route: Disaster Signal Aggregator
+# ResQ-Route Emergency Aggregator
 
-## 🏆 PromptWars Hackathon - Warm-Up Phase Submission
+**ResQ-Route** is an enterprise-grade Google Cloud native microservice designed to ingest unstructured, chaotic emergency signals and structurally parse them into actionable JSON routing data using **Google Vertex AI (Gemini)**.
 
-* **Challenge Vertical:** Emergency Response / Disaster Relief
-* **App Name:** **ResQ-Route**
+Designed with rigorous Silicon Valley backend patterns, it utilizes a decoupled **Flask Application Factory**, strict OWASP Security interceptors, and non-blocking asynchronous multi-threading.
 
-## 💡 The Problem & Logic
-During massive natural disasters (like hurricanes or floods), 911 dispatch centers are overwhelmed. Chaos ensues as victims post frantic, unstructured cries for help across various channels (texts, social media, emergency lines). These inputs are incredibly messy—containing slang, typos, panic, and fragmented location data.
+---
 
-**The Approach:**
-ResQ-Route acts as the ultimate bridge. It takes raw, unstructured "messy" human intent signals and immediately structuralizes them into clean, verified JSON payloads. It determines the `Severity` of the incident, the core `Intent` (Is it a medical emergency or just a request for info?), extracts the `Location`, and provides an `Immediate Life-Saving Action` for emergency dispatchers.
+## 🏗️ System Architecture
 
-## 🚀 How It Works
-1. **The Input:** Dispatchers or an automated pipeline feed raw text strings into the ResQ-Route dashboard.
-2. **The Gemini Bridge:** The backend leverages the `Google Gemini 1.5 Flash` API. Using strict system instructions and `response_mime_type="application/json"`, Gemini uses its advanced reasoning to parse the chaotic text and extract precise data points.
-3. **The Output:** It guarantees a perfectly formatted, structured web dashboard visualization and raw JSON response that maps priority levels from 1 to 5. This allows dispatchers to instantly deploy units to the most critical life-threatening, situations first.
+This backend serves as the core orchestration pipeline bridging incoming frontend signals natively across the Google Cloud platform ecosystem.
 
-### Assumptions Made
-* The input language is primarily text-based for this lightweight iteration.
-* The deployment environment has `GEMINI_API_KEY` configured securely in the environment variables, ensuring the key is not exposed.
-* Dispatchers require < 2 seconds of latency, which is why we utilized the extremely fast `Gemini 1.5 Flash` model.
-
-## 🛠️ Google Services Used
-* **Google Gemini API** (`gemini-1.5-flash`)
-* **Google Cloud Platform App Engine** (Deployment ready via the included `app.yaml`)
-
-## 💻 Tech Stack
-* **Backend:** Python + Flask
-* **Frontend:** Vanilla HTML/JS/CSS (Zero bloat, extremely fast, repo size well under 1 MB limit)
-* **Testing:** `pytest` unit testing suite included to ensure structural reliability.
-
-## 🏃‍♂️ Running Locally
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
+```mermaid
+graph TD;
+    Client((Frontend UI)) -->|POST /process| FlaskAPI[Flask Factory Engine];
+    FlaskAPI -->|Signal| VertexAI((Gemini 1.5 Flash));
+    VertexAI -.->|JSON Mapping| FlaskAPI;
+    
+    subgraph Google Cloud Ecosystem
+    FlaskAPI -->|Save Payload| Firestore[(NoSQL Document)];
+    FlaskAPI -->|Upload Object| GCS[(Cloud Storage Blob)];
+    FlaskAPI -->|Dispatch Event| PubSub[Pub/Sub Topic];
+    FlaskAPI -->|System Telemetry| Stackdriver[JSON Logging];
+    end
 ```
 
-2. Export your Gemini API key:
-```bash
-export GEMINI_API_KEY="your-api-key-here"
-```
+## 🚀 Key Enterprise Features
 
-3. Run the application:
+### 1. The Application Factory Pattern
+Unlike standard monolithic scripts, this application cleanly decouples logic across the `/app` directory:
+- `routes.py`: Safely manages HTTP intercepts.
+- `services.py`: Dedicated Data Access Layer natively abstracting Vertex AI calls and Database persistence.
+- `config.py`: Explicit environment and initialization bounds.
+- `exceptions.py`: Custom-built `TriageAPIError` structures strictly mapping backend execution failures gracefully.
+
+### 2. High-Efficiency Concurrency
+Running actively on Google App Engine Standard natively, the server executes via **Gunicorn `gthread` load-balancing** (`--workers=4 --threads=4`), providing immense non-blocking capabilities without deadlocking native Google gRPC C-Extensions.
+
+### 3. Structured JSON Logging Integration
+To ensure complete system observability across the GCP Operations Suite, all internal metrics use `python-json-logger`. This maps traditional Python logs securely into `Stackdriver` natively enabling robust metric querying on dashboard environments.
+
+### 4. Rigid Security & Code Quality Standards
+- **Zero-Fault Code Quality**: Adheres completely to pedantic `PEP8` limits dynamically formatted via `Black` and parsed cleanly by `Flake8`.
+- **OWASP Interceptors**: Employs global `@app.after_request` intercepts appending redundant HTTP `Strict-Transport-Security`, `Content-Security-Policy`, and `X-Frame-Options` organically.
+
+## 🛠️ Deployment
+
+1. Set up your Google Cloud `gcloud` CLI.
+2. Store your `GEMINI_API_KEY` securely in the Application config.
+3. Deploy natively to the remote App Engine container runtime:
+
 ```bash
-python app.py
+gcloud app deploy
 ```
-Open your browser to `http://localhost:8080`

@@ -1,5 +1,5 @@
 runtime: python311
-entrypoint: gunicorn -b :$PORT app:app --workers=4 --threads=4
+entrypoint: gunicorn -b :$PORT run:app --workers=4 --threads=4
 
 handlers:
 - url: /static
