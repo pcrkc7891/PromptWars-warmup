@@ -1,8 +1,14 @@
 import pytest
 import json
 import html
-from app import app
 from unittest.mock import patch, MagicMock
+
+# Crucial: Mock all GCP instantiation layers BEFORE importing the main app 
+# so the local test bench doesn't crash aggressively when validating.
+with patch("google.cloud.logging.Client"), \
+     patch("google.cloud.storage.Client"), \
+     patch("google.cloud.error_reporting.Client"):
+    from app import app
 
 @pytest.fixture
 def client():
@@ -36,7 +42,7 @@ def test_process_no_message(client):
             response = client.post("/process", json={})
             assert response.status_code == 400
             data = response.get_json()
-            assert "Invalid JSON" in data["error"] or "No message parameter explicitly provided" in data["error"]
+            assert "explicitly provided" in data["error"]
 
 def test_process_missing_api_key(client):
     """Test that hitting the route without an API key gracefully blocks execution (Security Coverage)."""
@@ -44,7 +50,7 @@ def test_process_missing_api_key(client):
         response = client.post("/process", json={"message": "Valid string"})
         assert response.status_code == 500
         data = response.get_json()
-        assert "Gemini API key not configured" in data["error"]
+        assert "Gemini Key Missing" in data["error"]
 
 @patch("app.model")
 def test_process_sanitizes_xss(mock_model_global, client):
@@ -68,15 +74,28 @@ def test_process_sanitizes_xss(mock_model_global, client):
 def test_process_success(mock_model_global, client):
     """Test a successful Gemini extraction and structuring process."""
     mock_result = MagicMock()
-    # Mock the exact JSON string format Gemini 1.5 Flash will return
     mock_result.text = '{"severity": "High", "intent": "Rescue", "location_summary": "123 Elm St", "actionable_recommendation": "Dispatch swift water boat.", "priority_level": 5}'
     mock_model_global.generate_content.return_value = mock_result
 
     with patch("app.api_key", "dummy_key"):
-        response = client.post("/process", json={"message": "We are drowning at 123 Elm St!"})
-        
-        assert response.status_code == 200
-        data = response.get_json()
-        assert data["severity"] == "High"
-        assert data["priority_level"] == 5
-        assert "Dispatch" in data["actionable_recommendation"]
+        with patch("app.storage_client", MagicMock()):
+            response = client.post("/process", json={"message": "We are drowning at 123 Elm St!"})
+            
+            assert response.status_code == 200
+            data = response.get_json()
+            assert data["severity"] == "High"
+            assert data["priority_level"] == 5
+            assert "Dispatch" in data["actionable_recommendation"]
+
+@patch("app.model")
+def test_process_exception_handler(mock_model_global, client):
+    """Test deep engine fault mapping triggering 500 routes and Error Reporting stubs."""
+    mock_model_global.generate_content.side_effect = Exception("System Crash")
+    
+    with patch("app.api_key", "dummy_key"):
+        with patch("app.error_client", MagicMock()) as mock_err:
+            response = client.post("/process", json={"message": "Crash me"})
+            assert response.status_code == 500
+            
+            # The error should fire native reporting frameworks
+            mock_err.report.assert_called_once()
