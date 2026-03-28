@@ -52,9 +52,9 @@ def process():
         return jsonify({"error": "No message provided."}), 400
 
     try:
-        # Utilizing gemini-1.5-flash as it's optimized for fast text structuring
+        # Utilize gemini-flash-latest from the user's available model list
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-flash-latest",
             generation_config=generation_config,
             system_instruction=SYSTEM_INSTRUCTION
         )
