@@ -1,10 +1,19 @@
 # ResQ-Route Emergency Aggregator
 
+<<<<<<< HEAD
 **ResQ-Route** is an enterprise-grade Google Cloud native microservice designed to ingest unstructured, chaotic emergency signals and structurally parse them into actionable JSON routing data using **Google Vertex AI (Gemini)**.
+=======
+## 🏆 PromptWars Hackathon - main Phase Submission
+>>>>>>> refs/remotes/origin/main
 
 Designed with rigorous Silicon Valley backend patterns, it utilizes a decoupled **Flask Application Factory**, strict OWASP Security interceptors, and non-blocking asynchronous multi-threading.
 
+<<<<<<< HEAD
 ---
+=======
+## 💡 The Problem & Logic
+During massive natural disasters (like hurricanes or floods), 100/108/112 dispatch centers are overwhelmed. Chaos ensues as victims post frantic, unstructured cries for help across various channels (texts, social media, emergency lines). These inputs are incredibly messy—containing slang, typos, panic, and fragmented location data.
+>>>>>>> refs/remotes/origin/main
 
 ## 🏗️ System Architecture
 
