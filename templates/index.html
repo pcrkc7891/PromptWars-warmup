@@ -3,36 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Meta implementation for crawler indexing and description -->
+    <meta name="description" content="ResQ-Route Emergency Triage System - Converts messy disaster signals into structured JSON actionable logistics.">
     <title>ResQ-Route | Disaster Signal Aggregator</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background-mesh"></div>
+    <div class="background-mesh" aria-hidden="true"></div>
     <div class="container">
+        <!-- Semantic Document Structure -->
         <header>
             <h1><span class="highlight">ResQ-Route</span> Triage</h1>
             <p>Gemini-powered Unstructured Emergency Signal Structuralizer.</p>
         </header>
         
         <main class="dashboard">
-            <section class="input-panel glass">
-                <h2>Raw Incoming Signal</h2>
-                <textarea id="raw-signal" placeholder="E.g., Water is rising fast up to the 2nd floor window! Can't leave the house, grandma is trapped. We are at 502 Elm Street. Please send help..."></textarea>
+            <!-- Accessibility structural landmarks using sections -->
+            <section class="input-panel glass" aria-labelledby="input-heading">
+                <h2 id="input-heading">Raw Incoming Signal</h2>
+                
+                <!-- Explicit accessibility relationships (Labels specifically) -->
+                <label for="raw-signal" class="visually-hidden">Paste or type unstructured raw emergency signal here.</label>
+                <textarea 
+                    id="raw-signal" 
+                    name="raw-signal"
+                    placeholder="E.g., Water is rising fast up to the 2nd floor window! Can't leave the house, grandma is trapped. We are at 502 Elm Street. Please send help..."
+                    aria-required="true"
+                ></textarea>
+                
                 <div class="controls">
-                    <button id="process-btn">Analyze Signal</button>
-                    <div class="loading-spinner hidden" id="spinner"></div>
+                    <button id="process-btn" aria-label="Analyze the unformatted signal through Gemini">Analyze Signal</button>
+                    <!-- Loading state for visually impaired users -->
+                    <div class="loading-spinner hidden" id="spinner" role="status" aria-label="Processing signal"></div>
                 </div>
-                <div id="error-msg" class="error hidden"></div>
+                <div id="error-msg" class="error hidden" role="alert"></div>
             </section>
 
-            <section class="output-panel glass">
-                <h2>Structured Action Plan</h2>
+            <section class="output-panel glass" aria-labelledby="output-heading">
+                <h2 id="output-heading">Structured Action Plan</h2>
                 <div class="placeholder" id="output-placeholder">
                     Awaiting signal analysis...
                 </div>
                 
-                <div class="results hidden" id="results">
+                <!-- A11y Live region. Changes to this node will be read aloud immediately. -->
+                <div class="results hidden" id="results" aria-live="polite">
                     <div class="result-header">
                         <span id="priority-badge" class="badge">Priority 1</span>
                         <h3 id="res-severity">Critical</h3>
@@ -56,7 +71,8 @@
                     
                     <div class="json-preview">
                         <span class="label">Verified JSON Payload:</span>
-                        <pre><code id="json-code"></code></pre>
+                        <!-- Code blocks must be semantic -->
+                        <pre><code id="json-code" aria-label="Raw Output JSON Schema"></code></pre>
                     </div>
                 </div>
             </section>

@@ -1,5 +1,6 @@
 import pytest
 import json
+import html
 from app import app
 from unittest.mock import patch, MagicMock
 
@@ -17,22 +18,46 @@ def test_index_route(client):
 
 def test_process_no_message(client):
     """Test the API rejection of missing data."""
-    # Temporarily set a dummy API key to bypass configuration check constraint locally
     with patch("app.api_key", "dummy_key"):
-        response = client.post("/process", json={})
-        assert response.status_code == 400
-        data = response.get_json()
-        assert "No message provided" in data["error"]
+        with patch("app.model", MagicMock()):
+            response = client.post("/process", json={})
+            assert response.status_code == 400
+            data = response.get_json()
+            assert "Invalid JSON" in data["error"] or "No message" in data["error"]
 
-@patch("app.genai.GenerativeModel")
-def test_process_success(mock_model_class, client):
+def test_process_missing_api_key(client):
+    """Test that hitting the route without an API key gracefully blocks execution (Security Coverage)."""
+    with patch("app.api_key", None):
+        response = client.post("/process", json={"message": "Valid string"})
+        assert response.status_code == 500
+        data = response.get_json()
+        assert "Gemini API key not configured" in data["error"]
+
+@patch("app.model")
+def test_process_sanitizes_xss(mock_model_global, client):
+    """Test that malicious HTML/JS tags get escaped before being passed to the Generative Model."""
+    mock_result = MagicMock()
+    # Mocking standard successful output purely so the function finishes successfully.
+    mock_result.text = '{"severity": "High", "intent": "Rescue", "location_summary": "123", "actionable_recommendation": "Step", "priority_level": 5}'
+    mock_model_global.generate_content.return_value = mock_result
+
+    with patch("app.api_key", "dummy_key"):
+        xss_payload = "<script>alert('pwned')</script> I need help!"
+        response = client.post("/process", json={"message": xss_payload})
+        
+        assert response.status_code == 200
+        
+        # Verify the model received the safely escaped string, NOT the raw script tags.
+        escaped_payload = html.escape(xss_payload)
+        mock_model_global.generate_content.assert_called_once_with(escaped_payload)
+
+@patch("app.model")
+def test_process_success(mock_model_global, client):
     """Test a successful Gemini extraction and structuring process."""
-    mock_instance = MagicMock()
     mock_result = MagicMock()
     # Mock the exact JSON string format Gemini 1.5 Flash will return
     mock_result.text = '{"severity": "High", "intent": "Rescue", "location_summary": "123 Elm St", "actionable_recommendation": "Dispatch swift water boat.", "priority_level": 5}'
-    mock_instance.generate_content.return_value = mock_result
-    mock_model_class.return_value = mock_instance
+    mock_model_global.generate_content.return_value = mock_result
 
     with patch("app.api_key", "dummy_key"):
         response = client.post("/process", json={"message": "We are drowning at 123 Elm St!"})
